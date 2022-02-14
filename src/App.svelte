@@ -1,10 +1,15 @@
 <script lang="ts">
+	import Board from "./Board.svelte";
+	import Game from "./Game";
+
 	export let name: string;
+
+	let game = new Game();
 </script>
 
 <main>
 	<h1>Connect 4</h1>
-	<div></div>
+	<Board {game}></Board>
 </main>
 
 <style>
