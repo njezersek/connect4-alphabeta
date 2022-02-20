@@ -4,9 +4,9 @@ export type Move = {x: number, y: number}
 export default class Game{
 	data: Cell[][];
 	turn: 1 | -1;
-	static width = 7 as const;
-	static height = 6 as const;
-	static connect_n = 4 as const;
+	static width = 7;
+	static height = 6;
+	static connect_n = 4;
 	static symbols = {"1": "X", "0": " ", "-1": "O"} as const;
 	constructor(){
 		this.turn = 1;
