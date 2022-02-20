@@ -19,9 +19,18 @@
 	</header>
 	<div class="container">
 		<div class="menu">
-			
-			<button on:click={() => menu = false}>Play</button>
+			<Slider
+				bind:value
+				min={0}
+				max={10}
+				step={1}
+				discrete
+				tickMarks
+				input$aria-label="Tick mark slider"
+			/>
 		
+			<button on:click={() => menu = false}>Play</button>
+			
 		</div>
 
 		<div class="board" style="top: {menu ? 100 : 0}%">
