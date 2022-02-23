@@ -1,15 +1,25 @@
 <script lang="ts">
 	import Slider from '@smui/slider';
+	import Button from '@smui/button';
+	import SegmentedButton, {Segment} from '@smui/segmented-button';
+	import {Label} from '@smui/common';
 	import Board from "./Board.svelte";
 	import Game from "./Game";
 
 	export let name: string;
 
-	let menu = true;
+	let menu = false;
 
-	let value = 6;
+	let depth = 6;
+	let width = 7;
+	let height = 6;
+
+	let choices = ['Morning', 'Afternoon', 'Evening', 'Night'];
+	let selected = 'Morning';
 
 	let game = new Game();
+
+	game.eval();
 </script>
 
 <main>
@@ -19,19 +29,29 @@
 	</header>
 	<div class="container">
 		<div class="menu">
-			<Slider
-				bind:value
-				min={0}
-				max={10}
-				step={1}
-				discrete
-				tickMarks
-				input$aria-label="Tick mark slider"
-			/>
+			<Label for="depth">Depth</Label>
+			<Slider bind:value={depth} id="depth" min={0} max={10} step={1} discrete tickMarks />
+			<div class="columns">
+				<div class="column">
+					<Label for="width">Width</Label>
+					<Slider bind:value={depth} id="width" min={3} max={20} step={1} discrete tickMarks />
+				</div>
+				<div class="column">
+					<Label for="height">Height</Label>
+					<Slider bind:value={depth} id="height" min={3} max={20} step={1} discrete tickMarks />
+				</div>
+			</div>
 		
-			<button on:click={() => menu = false}>Play</button>
+			<Button on:click={() => menu = false} variant="raised">Play</Button>
 			
+			<SegmentedButton segments={choices} let:segment singleSelect bind:selected>
+				<Segment {segment}>
+					<Label>{segment}</Label>
+				</Segment>
+			</SegmentedButton>
 		</div>
+
+		   
 
 		<div class="board" style="top: {menu ? 100 : 0}%">
 			<Board {game}></Board>
@@ -66,6 +86,16 @@
 		width: 100%;
 		padding: 30px;
 		box-sizing: border-box;
+	}
+
+	.columns {
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.columns .column {
+		width: 100%;
 	}
 
 	.board {

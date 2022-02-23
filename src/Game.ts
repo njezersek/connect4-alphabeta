@@ -48,12 +48,12 @@ export default class Game{
 						if(lineMax == 0) value -= 100**lineMin;
 						if(lineMin == 0) value += 100**lineMax;
 					}
-					if(lineMax == 4)win = 1;
-					if(lineMin == 4)win = -1;
+					if(lineMax == Game.connect_n)return Infinity;
+					if(lineMin == Game.connect_n)return -Infinity;
 				}
 			}
 		}
-		return {value, win}; //izenačeno
+		return value; //izenačeno
 	}
 
 	getCell(x: number, y: number){

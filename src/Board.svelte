@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from "svelte";
-import AlphaBeta from "./AlphaBeta";
+	import AlphaBeta from "./AlphaBeta";
 	import { roundRectPath } from "./canvasUtils";
 	import Game from "./Game";
 	export let game: Game;
@@ -18,6 +18,9 @@ import AlphaBeta from "./AlphaBeta";
 
 	let selectedColumn = -1;
 
+	let movesHistory: number[] = [];
+	let playerMoves = [3,2,3,3,2,6,5,5,6,6,6,0,0,0,1,5,4];
+
 	let droppingToken = {x: -1, y: -1, vx: 0, vy: 0, tx: 0, ty: 0, dropping: false, size: 1, player: game.turn, hide: true};
 
 	onMount(() => {
@@ -32,7 +35,7 @@ import AlphaBeta from "./AlphaBeta";
 	}
 
 	function onmousemove(e: MouseEvent){
-		selectedColumn = Math.floor((e.offsetX*pixelRatio - size*frame) / size);
+		selectedColumn = Math.floor((e.offsetX*pixelRatio - offsetX) / size);
 		if(selectedColumn < 0 || selectedColumn >= Game.width) selectedColumn = -1;
 		if(e.offsetY*pixelRatio < offsetY || e.offsetY*pixelRatio > Game.height*size + offsetY) selectedColumn = -1;
 
@@ -48,6 +51,9 @@ import AlphaBeta from "./AlphaBeta";
 	}
 
 	function drop(column: number){
+		movesHistory = [...movesHistory, column];
+
+
 		if(column < 0) return;
 		if(droppingToken.dropping) return;
 		let moves = game.getMoves()
@@ -73,7 +79,7 @@ import AlphaBeta from "./AlphaBeta";
 				droppingToken.y = droppingToken.ty;
 				game.makeMove({x: droppingToken.tx, y: droppingToken.ty});
 				
-				if(droppingToken.player == 1) playerToken = true;
+				if(droppingToken.player == -1) playerToken = true;
 				
 				droppingToken.dropping = false;
 				droppingToken.y = -1;
@@ -192,10 +198,13 @@ import AlphaBeta from "./AlphaBeta";
 	async function makeMove(){
 		let ai = new AlphaBeta(game);
 		let decision = ai.decide(7, -Infinity, Infinity);
+		console.log(decision);
 		setTimeout(() => drop(decision.move.x), 1);
 	}
 </script>
-
+<button on:click={() => makeMove()}>Move</button>
+<button on:click={() => console.log("eval", game.eval())}>Eval</button>
+<div>{movesHistory.join(", ")}</div>
 <div class="container" bind:this={container}>
 	<canvas bind:this={c} on:click={onclick} on:mousemove={onmousemove} on:mouseleave={onmouseleave}/>
 </div>
