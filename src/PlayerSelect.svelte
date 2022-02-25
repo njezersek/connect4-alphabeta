@@ -73,12 +73,12 @@ import LabeledSlider from './LabeledSlider.svelte';
 	}
 
 	.token.red{
-		background-color: #e22d3c;
+		background-color: #e22d2d;
 		border: 3px solid #f76d6d;
 	}
 
 	.token.yellow{
-		background-color: #ffdd1d;
+		background-color: #fffb00;
 		border: 3px solid #ffe819;
 	}
 </style>

@@ -52,7 +52,7 @@
 	function onmousemove(e: MouseEvent){
 		selectedColumn = Math.floor((e.offsetX*pixelRatio - offsetX) / size);
 		if(selectedColumn < 0 || selectedColumn >= game.width) selectedColumn = -1;
-		if(e.offsetY*pixelRatio < offsetY || e.offsetY*pixelRatio > game.height*size + offsetY) selectedColumn = -1;
+		if(e.offsetY*pixelRatio < offsetY || e.offsetY*pixelRatio > (game.height+1)*size + offsetY) selectedColumn = -1;
 
 		if(!droppingToken.dropping){
 			if(selectedColumn < 0) droppingToken.hide = true;
@@ -138,10 +138,10 @@
 
 		// frame
 		roundRectPath(ctx, offsetX - size*frame + padding/2, offsetY - size*frame + padding/2 + size, size*game.width + (size*frame-padding/2)*2, size*game.height + (size*frame-padding/2)*2, size/8);
-		ctx.fillStyle = "#24a"
+		ctx.fillStyle = "#0b4a9c"
 		ctx.fill();
 		ctx.lineWidth = padding/3;
-		ctx.strokeStyle = '#139';
+		ctx.strokeStyle = '#11468a';
 		ctx.stroke();
 		ctx.clearRect(offsetX, offsetY+size, size*game.width, size*game.height)
 
@@ -149,22 +149,22 @@
 		if(droppingToken.x >= 0 && !game.ended){
 			ctx.beginPath();
 			ctx.arc(offsetX + Math.round(droppingToken.x*size+size/2), offsetY + Math.round(droppingToken.y*size+size/2) + size, Math.max(0, droppingToken.size) * Math.round(size/2-padding/2), 0, 2 * Math.PI, false);
-			ctx.fillStyle = droppingToken.player == 1 ? '#f00' : "#ff0";
+			ctx.fillStyle = droppingToken.player == 1 ? '#e22d2d' : "#fffb00";
 			ctx.fill();
 		}
 
-		ctx.fillStyle = "#24a";
+		ctx.fillStyle = "#0b4a9c";
 		ctx.fillRect(offsetX, offsetY - size*frame + padding/2 + size, game.width*size, size*frame);
 		roundRectPath(ctx, offsetX - size*frame + padding/2, offsetY - size*frame + padding/2 + size, size*game.width + (size*frame-padding/2)*2, size*game.height + (size*frame-padding/2)*2, size/8);
 		ctx.lineWidth = padding/3;
-		ctx.strokeStyle = '#139';
+		ctx.strokeStyle = '#104285';
 		ctx.stroke();
 
 		// grid and tokens
 		for(var x=0; x<game.width; x++){
 			for(var y=0; y<game.height; y++){
 				// grid
-				ctx.fillStyle = "#24a";
+				ctx.fillStyle = "#0b4a9c";
 				ctx.beginPath();
 				ctx.arc(offsetX + Math.round(x*size+size/2), offsetY + Math.round(y*size+size/2) + size, Math.round(size/2-padding/2), 0, 2 * Math.PI, false);
 				ctx.rect(offsetX + Math.ceil(x*size+size), offsetY + Math.floor(y*size) + size, Math.floor(-size), Math.ceil(size));
@@ -174,12 +174,12 @@
 				ctx.beginPath();
 				ctx.arc(offsetX + Math.round(x*size+size/2), offsetY + Math.round(y*size+size/2) + size, Math.round(size/2-padding/2), 0, 2 * Math.PI, false);
 				if(game.getCell(x,y) != 0){
-					ctx.fillStyle = game.getCell(x,y) == 1 ? '#f00' : '#ff0';
+					ctx.fillStyle = game.getCell(x,y) == 1 ? '#e22d2d' : '#fffb00';
 					ctx.fill();
 				}
 
 				ctx.lineWidth = padding/3;
-				ctx.strokeStyle = '#139';
+				ctx.strokeStyle = '#104285';
 				ctx.stroke();
 			}
 		}
@@ -195,7 +195,7 @@
 			ctx.beginPath();
 			ctx.arc(offsetX + Math.round(token.x*size+size/2), offsetY + Math.round(token.y*size+size/2) + size, Math.round(size/2-padding/2), 0, 2 * Math.PI, false);
 			ctx.lineWidth = padding/3+1;
-			ctx.strokeStyle = Math.floor(t/500) % 2 == 0 ? '#fff' : "#139";
+			ctx.strokeStyle = Math.floor(t/500) % 2 == 0 ? '#fff' : "#104285";
 			ctx.stroke();
 		}
 	}

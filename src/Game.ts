@@ -108,6 +108,11 @@ export default class Game{
 	}
 
 	isEnded(){
+		if(this.getMoves().length == 0){
+			this.ended = true;
+			return true;
+		}
+
 		// find winning connection
 		const directions = [
 			{x: 1, y: 0}, // vodoravno
