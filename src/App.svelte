@@ -72,7 +72,7 @@
 
 		   
 
-		<div class="board" style="top: {menu ? 100 : 0}%">
+		<div class="board" style="bottom: {menu ? -100 : 0}%">
 			<Board {game} {player1} {player2} {player1_depth} {player2_depth} {newGame} bind:onstart></Board>
 		</div>
 	</div>
@@ -111,6 +111,8 @@
 	.menu{
 		position: absolute;
 		width: 100%;
+		height: 100%;
+		overflow-y: auto;
 		padding: 30px;
 		box-sizing: border-box;
 		opacity: 0;
@@ -152,7 +154,7 @@
 	.board {
 		height: 100%;
 		position: relative;
-		transition-property: top;
+		transition-property: bottom;
 		transition-duration: 0.3s;
 		background-color: #fff;
 	}
