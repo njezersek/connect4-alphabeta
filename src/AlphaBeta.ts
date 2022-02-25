@@ -10,7 +10,7 @@ export default class AlphaBeta{
 
 	private decideRecursion(depth: number, alpha: number, beta: number) : Result{
 		let moves = this.game.getMoves();
-		if(moves.length) return {move: undefined, value: 0};
+		if(moves.length == 0) return {move: undefined, value: 0};
 
 		let turn = this.game.turn;
 		let best_move = moves[0];
