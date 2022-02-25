@@ -4,21 +4,18 @@ export type Move = {x: number, y: number}
 export default class Game{
 	data: Cell[][];
 	turn: 1 | -1;
-	static width = 7;
-	static height = 6;
-	static connect_n = 4;
 	static symbols = {"1": "X", "0": " ", "-1": "O"} as const;
-	constructor(){
+	constructor(public width, public height, public connect_n){
 		this.turn = 1;
-		this.data = new Array(Game.height);
+		this.data = new Array(this.height);
 		for(let i = 0; i<this.data.length; i++){
-			this.data[i] = new Array(Game.width).fill(0);
+			this.data[i] = new Array(this.width).fill(0);
 		}
 	}
 
 	eval(){
 		//povej ali je kdo zmagal
-		const n = Game.connect_n; //koliko znakov mora biti v vrsti
+		const n = this.connect_n; //koliko znakov mora biti v vrsti
 		let value = 0;
 		let win = 0;
 		const directions = [
@@ -28,8 +25,8 @@ export default class Game{
 			{x: -1, y: 1}, // posevno gor
 		];
 		for(let dir of directions){
-			for(let j=0-Math.min(dir.y, 0)*(n-1); j<Game.height - Math.max(dir.y,0)*(n-1); j++){
-				for(let i=0-Math.min(dir.x,0)*(n-1); i<Game.width - Math.max(dir.x,0)*(n-1); i++){
+			for(let j=0-Math.min(dir.y, 0)*(n-1); j<this.height - Math.max(dir.y,0)*(n-1); j++){
+				for(let i=0-Math.min(dir.x,0)*(n-1); i<this.width - Math.max(dir.x,0)*(n-1); i++){
 					// prestej koliko znakov je v vrsti
 					let lineMax = 0;
 					let lineMin = 0;
@@ -48,8 +45,8 @@ export default class Game{
 						if(lineMax == 0) value -= 100**lineMin;
 						if(lineMin == 0) value += 100**lineMax;
 					}
-					if(lineMax == Game.connect_n)return Infinity;
-					if(lineMin == Game.connect_n)return -Infinity;
+					if(lineMax == this.connect_n)return Infinity;
+					if(lineMin == this.connect_n)return -Infinity;
 				}
 			}
 		}
@@ -57,7 +54,7 @@ export default class Game{
 	}
 
 	getCell(x: number, y: number){
-		if(x >= 0 && x < Game.width && y >= 0 && y < Game.height){
+		if(x >= 0 && x < this.width && y >= 0 && y < this.height){
 			return this.data[y][x];
 		}
 	}
@@ -65,8 +62,8 @@ export default class Game{
 	getMoves(){
 		//vrni vse možne poteze, ki so trenutno na voljo
 		let moves: Move[] = [];
-		for(let i=0; i<Game.width; i++){
-		  for(let j=Game.height-1; j>=0; j--){
+		for(let i=0; i<this.width; i++){
+		  for(let j=this.height-1; j>=0; j--){
 			if(this.data[j][i] == 0){
 			  moves.push({x: i, y: j});
 			  break;
@@ -93,16 +90,27 @@ export default class Game{
 	renderToConsole(){
 		let text = this.data.map(
 		  row => row.map(c => Game.symbols[c]).join(" | ")
-		).join("\n"+("-".repeat(Game.width*4-3))+"\n");
+		).join("\n"+("-".repeat(this.width*4-3))+"\n");
 	
 		console.log(text);
 	}
 
-	copy(){
-		let game = new Game();
+	isEmpty(){
+		for(let i=0; i<this.width; i++){
+			for(let j=0; j<this.height; j++){
+				if(this.data[j][i] != 0){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
-		for(let i=0; i<Game.width; i++){
-			for(let j=0; j<Game.height; j++){
+	copy(){
+		let game = new Game(this.width, this.height, this.connect_n);
+
+		for(let i=0; i<this.width; i++){
+			for(let j=0; j<this.height; j++){
 				game.data[j][i] = this.data[j][i];
 			}
 		}

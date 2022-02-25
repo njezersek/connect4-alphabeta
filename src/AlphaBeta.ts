@@ -4,14 +4,11 @@ import type { Move } from "./Game";
 type Result = {move?: Move, value: number};
 
 export default class AlphaBeta{
-
-	max_depth = 4;
-
-	constructor(private game: Game){
+	constructor(private game: Game, public depth: number){
 
 	}
 
-	decide(depth: number, alpha: number, beta: number) : Result{
+	private decideRecursion(depth: number, alpha: number, beta: number) : Result{
 		let moves = this.game.getMoves();
 		let turn = this.game.turn;
 		let best_move = undefined;
@@ -27,7 +24,7 @@ export default class AlphaBeta{
 				v = e;
 			}
 			else{ // BRANCH NODE: value is computed recursivly
-				v = this.decide(depth - 1, alpha, beta).value;
+				v = this.decideRecursion(depth - 1, alpha, beta).value;
 			}
 			this.game.undoMove(move);
 			
@@ -57,4 +54,10 @@ export default class AlphaBeta{
 		return {move: best_move, value: turn == 1 ? alpha : beta};
 
 	}
+
+	decide(){
+		return this.decideRecursion(this.depth, -Infinity, Infinity);
+	}
+
+	
 }

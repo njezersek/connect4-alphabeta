@@ -2,8 +2,13 @@
 	import { onDestroy, onMount } from "svelte";
 	import AlphaBeta from "./AlphaBeta";
 	import { roundRectPath } from "./canvasUtils";
-	import Game from "./Game";
+	import type Game from "./Game";
 	export let game: Game;
+
+	export let player1: string;
+	export let player1_depth: number;
+	export let player2: string;
+	export let player2_depth: number;
 
 
 	let c: HTMLCanvasElement;
@@ -27,7 +32,16 @@
 		ctx = c.getContext("2d");	
 		resize();
 		tick(1);
+		
 	});
+
+	export function onstart(){
+		if(game.isEmpty()){
+			if(player1 == "Computer"){
+				setTimeout(aiMove, 100);
+			}
+		}
+	}
 
 
 	function onmouseleave(e: MouseEvent){
@@ -36,8 +50,8 @@
 
 	function onmousemove(e: MouseEvent){
 		selectedColumn = Math.floor((e.offsetX*pixelRatio - offsetX) / size);
-		if(selectedColumn < 0 || selectedColumn >= Game.width) selectedColumn = -1;
-		if(e.offsetY*pixelRatio < offsetY || e.offsetY*pixelRatio > Game.height*size + offsetY) selectedColumn = -1;
+		if(selectedColumn < 0 || selectedColumn >= game.width) selectedColumn = -1;
+		if(e.offsetY*pixelRatio < offsetY || e.offsetY*pixelRatio > game.height*size + offsetY) selectedColumn = -1;
 
 		if(!droppingToken.dropping){
 			if(selectedColumn < 0) droppingToken.hide = true;
@@ -79,7 +93,8 @@
 				droppingToken.y = droppingToken.ty;
 				game.makeMove({x: droppingToken.tx, y: droppingToken.ty});
 				
-				if(droppingToken.player == -1) playerToken = true;
+				if(droppingToken.player == -1 && player1 == "Computer") playerToken = true;
+				if(droppingToken.player == 1 && player2 == "Computer") playerToken = true;
 				
 				droppingToken.dropping = false;
 				droppingToken.y = -1;
@@ -98,33 +113,34 @@
 		}
 
 		if(playerToken){
-			setTimeout(() => makeMove(), 1);
+			console.log("AI move")
+			setTimeout(() => aiMove(), 1);
 		}
 	}
 	
 	function render(){
 		size = 0;
 		frame = 0.15;
-		if(c.width / (Game.width+frame*2) < c.height/ (Game.height+1+frame*2)){
-			size = Math.round(c.width / (Game.width+frame*2));
+		if(c.width / (game.width+frame*2) < c.height/ (game.height+1+frame*2)){
+			size = Math.round(c.width / (game.width+frame*2));
 		}
 		else{
-			size = Math.round(c.height / (Game.height+1+frame*2));
+			size = Math.round(c.height / (game.height+1+frame*2));
 		}
 		padding = Math.round(size / 8);
-		offsetX = Math.round((c.width - Game.width * size) / 2);
-		offsetY = Math.round((c.height - (Game.height+1) * size) / 2);
+		offsetX = Math.round((c.width - game.width * size) / 2);
+		offsetY = Math.round((c.height - (game.height+1) * size) / 2);
 
 		ctx.clearRect(0, 0, c.width, c.height);
 
 		// frame
-		roundRectPath(ctx, offsetX - size*frame + padding/2, offsetY - size*frame + padding/2 + size, size*Game.width + (size*frame-padding/2)*2, size*Game.height + (size*frame-padding/2)*2, size/8);
+		roundRectPath(ctx, offsetX - size*frame + padding/2, offsetY - size*frame + padding/2 + size, size*game.width + (size*frame-padding/2)*2, size*game.height + (size*frame-padding/2)*2, size/8);
 		ctx.fillStyle = "#24a"
 		ctx.fill();
 		ctx.lineWidth = padding/3;
 		ctx.strokeStyle = '#139';
 		ctx.stroke();
-		ctx.clearRect(offsetX, offsetY+size, size*Game.width, size*Game.height)
+		ctx.clearRect(offsetX, offsetY+size, size*game.width, size*game.height)
 
 		// dropping token
 		if(droppingToken.x >= 0){
@@ -135,15 +151,15 @@
 		}
 
 		ctx.fillStyle = "#24a";
-		ctx.fillRect(offsetX, offsetY - size*frame + padding/2 + size, Game.width*size, size*frame);
-		roundRectPath(ctx, offsetX - size*frame + padding/2, offsetY - size*frame + padding/2 + size, size*Game.width + (size*frame-padding/2)*2, size*Game.height + (size*frame-padding/2)*2, size/8);
+		ctx.fillRect(offsetX, offsetY - size*frame + padding/2 + size, game.width*size, size*frame);
+		roundRectPath(ctx, offsetX - size*frame + padding/2, offsetY - size*frame + padding/2 + size, size*game.width + (size*frame-padding/2)*2, size*game.height + (size*frame-padding/2)*2, size/8);
 		ctx.lineWidth = padding/3;
 		ctx.strokeStyle = '#139';
 		ctx.stroke();
 
 		// grid and tokens
-		for(var x=0; x<Game.width; x++){
-			for(var y=0; y<Game.height; y++){
+		for(var x=0; x<game.width; x++){
+			for(var y=0; y<game.height; y++){
 				// grid
 				ctx.fillStyle = "#24a";
 				ctx.beginPath();
@@ -168,12 +184,7 @@
 		// highlight
 		if(selectedColumn >= 0){
 			ctx.fillStyle = "rgba(0,0,0,0.1)";
-			ctx.fillRect(offsetX + selectedColumn*size, offsetY - size*frame + padding/2 + size, size, size * Game.height + size*frame*2 - padding);
-
-			// ctx.beginPath();
-			// ctx.arc(offsetX + Math.round(selectedColumn*size+size/2), offsetY + Math.round(-size+size/2) + size, Math.round(size/2-padding/2), 0, 2 * Math.PI, false);
-			// ctx.fillStyle = game.turn ? '#f00' : "#ff0";
-			// ctx.fill();
+			ctx.fillRect(offsetX + selectedColumn*size, offsetY - size*frame + padding/2 + size, size, size * game.height + size*frame*2 - padding);
 		}
 	}
 
@@ -195,16 +206,13 @@
 		render();
 	}
 
-	async function makeMove(){
-		let ai = new AlphaBeta(game);
-		let decision = ai.decide(7, -Infinity, Infinity);
+	async function aiMove(){
+		let ai = new AlphaBeta(game, game.turn == 1 ? player1_depth : player2_depth);
+		let decision = ai.decide();
 		console.log(decision);
 		setTimeout(() => drop(decision.move.x), 1);
 	}
 </script>
-<button on:click={() => makeMove()}>Move</button>
-<button on:click={() => console.log("eval", game.eval())}>Eval</button>
-<div>{movesHistory.join(", ")}</div>
 <div class="container" bind:this={container}>
 	<canvas bind:this={c} on:click={onclick} on:mousemove={onmousemove} on:mouseleave={onmouseleave}/>
 </div>

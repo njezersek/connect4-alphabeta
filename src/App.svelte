@@ -6,7 +6,7 @@
 	import {Label} from '@smui/common';
 	import Board from "./Board.svelte";
 	import Game from "./Game";
-import LabeledSlider from './LabeledSlider.svelte';
+	import LabeledSlider from './LabeledSlider.svelte';
 
 	let menu = true;
 
@@ -19,13 +19,16 @@ import LabeledSlider from './LabeledSlider.svelte';
 	let player1_depth = 6;
 	let player2_depth = 6;
 
-	let game = new Game();
+	let onstart: () => void;
+
+	let game: Game;
+	$: game = new Game(width, height, connect);
 </script>
 
 <main>
 	<header>
-		<h1>Connect <b>n</b></h1>
-		<img src="menu.png" alt="Settings" width="32" height="32" on:click={() => menu = !menu}>
+		<h1>Connect <b>{connect}</b></h1>
+		<img src="menu.png" alt="Settings" width="32" height="32" on:click={() => {if(menu){onstart()}; menu = !menu}}>
 	</header>
 	<div class="container">
 		<div class="menu {menu && "show"}">
@@ -56,7 +59,7 @@ import LabeledSlider from './LabeledSlider.svelte';
 			</div>
 			
 			<div class="play-container">
-				<Button on:click={() => menu = false} variant="raised" style="padding: 24px 50px; font-size: 20px">Play</Button>
+				<Button on:click={() => {menu = false; onstart()}} variant="raised" style="padding: 24px 50px; font-size: 20px">Play</Button>
 			</div>
 
 		</div>
@@ -64,7 +67,7 @@ import LabeledSlider from './LabeledSlider.svelte';
 		   
 
 		<div class="board" style="top: {menu ? 100 : 0}%">
-			<Board {game}></Board>
+			<Board {game} {player1} {player2} {player1_depth} {player2_depth} bind:onstart></Board>
 		</div>
 	</div>
 </main>
