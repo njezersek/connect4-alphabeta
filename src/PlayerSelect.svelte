@@ -2,6 +2,7 @@
 	import Slider from '@smui/slider';
 	import SegmentedButton, {Segment} from '@smui/segmented-button';
 	import {Label} from '@smui/common';
+import LabeledSlider from './LabeledSlider.svelte';
 
 	export let player: string;
 	export let player_depth: number;
@@ -9,6 +10,27 @@
 	export let color = "red";
 
 	let choices = ["Human", "Computer"];
+
+	function valueMap(n){
+		if(n == 0){
+			return "Monkey"
+		}
+		else if(n <= 2){
+			return "Very easy"
+		}
+		else if(n <= 4){
+			return "Easy"
+		}
+		else if(n <= 6){
+			return "Medium"
+		}
+		else if(n <= 8){
+			return "Hard"
+		}
+		else{
+			return "Very hard"
+		}
+	}
 </script>
 
 <div class="player-select red">
@@ -21,9 +43,9 @@
 			<Label>{segment}</Label>
 		</Segment>
 	</SegmentedButton>
+	<div style="padding-top: 10px"></div>
 	{#if player === "Computer"}
-		<Label for="depth" style="margin-top: 10px; display: block">Difficulty (depth)</Label>
-		<Slider bind:value={player_depth} id="depth" min={0} max={10} step={1} discrete tickMarks />
+		<LabeledSlider label="Difficulty (depth)" bind:value={player_depth} min={0} max={10} step={1} valueMap={valueMap}/>
 	{/if}
 </div>
 

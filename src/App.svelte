@@ -14,8 +14,8 @@ import LabeledSlider from './LabeledSlider.svelte';
 	let height = 6;
 	let connect = 4;
 
-	let player1 = 'Computer';
-	let player2 = 'Human';
+	let player1 = 'Human';
+	let player2 = 'Computer';
 	let player1_depth = 6;
 	let player2_depth = 6;
 

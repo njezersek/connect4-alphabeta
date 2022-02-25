@@ -7,11 +7,17 @@
 	export let max: number;
 	export let step: number;
 	export let label: string;
+
+	export let valueMap: (number) => string | undefined = undefined;
 </script>
 
 <div class="space-between">
 	<Label for="{label}">{label}</Label>
-	<div style="font-weight: 500">{value}</div>
+	{#if valueMap}
+		<div style="font-weight: 500">{valueMap(value)}</div>
+	{:else}
+		<div style="font-weight: 500">{value}</div>
+	{/if}
 </div>
 <Slider bind:value id="{label}" {min} {max} {step} discrete tickMarks />
 
