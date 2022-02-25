@@ -14,12 +14,8 @@ export default class AlphaBeta{
 	decide(depth: number, alpha: number, beta: number) : Result{
 		let moves = this.game.getMoves();
 		let turn = this.game.turn;
-		let value = -Infinity * turn;
 		let best_move = undefined;
 
-		if(alpha >= beta){
-			return {move: best_move, value: Infinity * turn};
-		}
 		let summary = "";
 		for(let move of moves){
 
@@ -33,30 +29,32 @@ export default class AlphaBeta{
 			else{ // BRANCH NODE: value is computed recursivly
 				v = this.decide(depth - 1, alpha, beta).value;
 			}
+			this.game.undoMove(move);
 			
-			if((turn == 1 && v >= value) || (turn == -1 && v <= value)){
-				value = v
-				best_move = move;
-			}
 			// update alpha, beta
 			if(turn == 1){
 				if(v > alpha){
 					alpha = v;
+					best_move = move;
 				}
 			}
 			if(turn == -1){
 				if(v < beta){
 					beta = v;
+					best_move = move;
 				}
+			}
+
+			if(alpha >= beta){
+				break;
 			}
 
 			if(depth == 7)summary += " " + v;
 			
-			this.game.undoMove(move);
 		}
 
 		if(depth == 7)console.log(summary);
-		return {move: best_move, value};
+		return {move: best_move, value: turn == 1 ? alpha : beta};
 
 	}
 }

@@ -2,24 +2,24 @@
 	import Slider from '@smui/slider';
 	import Button from '@smui/button';
 	import SegmentedButton, {Segment} from '@smui/segmented-button';
+	import PlayerSelect from './PlayerSelect.svelte';
 	import {Label} from '@smui/common';
 	import Board from "./Board.svelte";
 	import Game from "./Game";
+import LabeledSlider from './LabeledSlider.svelte';
 
-	export let name: string;
+	let menu = true;
 
-	let menu = false;
-
-	let depth = 6;
 	let width = 7;
 	let height = 6;
+	let connect = 4;
 
-	let choices = ['Morning', 'Afternoon', 'Evening', 'Night'];
-	let selected = 'Morning';
+	let player1 = 'Computer';
+	let player2 = 'Human';
+	let player1_depth = 6;
+	let player2_depth = 6;
 
 	let game = new Game();
-
-	game.eval();
 </script>
 
 <main>
@@ -28,27 +28,37 @@
 		<img src="menu.png" alt="Settings" width="32" height="32" on:click={() => menu = !menu}>
 	</header>
 	<div class="container">
-		<div class="menu">
-			<Label for="depth">Depth</Label>
-			<Slider bind:value={depth} id="depth" min={0} max={10} step={1} discrete tickMarks />
+		<div class="menu {menu && "show"}">
 			<div class="columns">
 				<div class="column">
-					<Label for="width">Width</Label>
-					<Slider bind:value={depth} id="width" min={3} max={20} step={1} discrete tickMarks />
+					<PlayerSelect title="Player 1" color="red" bind:player={player1} bind:player_depth={player1_depth}/>
 				</div>
 				<div class="column">
-					<Label for="height">Height</Label>
-					<Slider bind:value={depth} id="height" min={3} max={20} step={1} discrete tickMarks />
+					<PlayerSelect title="Player 2" color="yellow" bind:player={player2} bind:player_depth={player2_depth} />
 				</div>
 			</div>
-		
-			<Button on:click={() => menu = false} variant="raised">Play</Button>
+			<div class="space-between">
+				<h2>Board size</h2>
+				{#if width != 7 || height != 6 || connect != 4}
+					<Button on:click={() => {width = 7; height = 6; connect = 4}}>reset</Button>
+				{/if}
+			</div>
+			<div class="columns">
+				<div class="column">
+					<LabeledSlider label="Width:" bind:value={width} min={4} max={20} step={1}/>
+				</div>
+				<div class="column">
+					<LabeledSlider label="Height:" bind:value={height} min={4} max={20} step={1}/>
+				</div>
+				<div class="column">
+					<LabeledSlider label="Connect to win:" bind:value={connect} min={3} max={6} step={1}/>
+				</div>
+			</div>
 			
-			<SegmentedButton segments={choices} let:segment singleSelect bind:selected>
-				<Segment {segment}>
-					<Label>{segment}</Label>
-				</Segment>
-			</SegmentedButton>
+			<div class="play-container">
+				<Button on:click={() => menu = false} variant="raised" style="padding: 24px 50px; font-size: 20px">Play</Button>
+			</div>
+
 		</div>
 
 		   
@@ -69,6 +79,14 @@
 		overflow: hidden;
 	}
 
+	h1 {
+		color: #333;
+		font-weight: 500;
+	}
+	h2{
+		font-weight: 500;
+	}
+
 	header{
 		display: flex;
 		justify-content: space-between;
@@ -86,16 +104,40 @@
 		width: 100%;
 		padding: 30px;
 		box-sizing: border-box;
+		opacity: 0;
+		transition: opacity 0.3s;
+	}
+
+	.menu.show {
+		opacity: 1;
 	}
 
 	.columns {
 		display: flex;
 		width: 100%;
 		justify-content: space-between;
+		column-gap: 40px;
+	}
+
+	@media only screen and (max-width: 600px) {
+		.columns  {
+			flex-direction: column;
+		}
 	}
 
 	.columns .column {
 		width: 100%;
+	}
+
+	.play-container{
+		text-align: center;
+		margin-top: 50px;
+	}
+
+	.space-between{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 	}
 
 	.board {
@@ -104,10 +146,5 @@
 		transition-property: top;
 		transition-duration: 0.3s;
 		background-color: #fff;
-	}
-
-	h1 {
-		color: #333;
-		font-weight: 500;
 	}
 </style>
