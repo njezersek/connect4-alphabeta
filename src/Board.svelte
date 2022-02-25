@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from "@smui/Button";
 	import { onDestroy, onMount } from "svelte";
 	import AlphaBeta from "./AlphaBeta";
 	import { roundRectPath } from "./canvasUtils";
@@ -9,6 +10,8 @@
 	export let player1_depth: number;
 	export let player2: string;
 	export let player2_depth: number;
+
+	export let newGame: () => void;
 
 
 	let c: HTMLCanvasElement;
@@ -65,11 +68,10 @@
 	}
 
 	function drop(column: number){
-		movesHistory = [...movesHistory, column];
-
-
 		if(column < 0) return;
+		if(game.ended) return;
 		if(droppingToken.dropping) return;
+		movesHistory = [...movesHistory, column];
 		let moves = game.getMoves()
 		droppingToken = {x: column, y: -1, vx: 0, vy: 0, tx: 0, ty: 0, dropping: true, size: 1, player: game.turn, hide: false};
 		for(let m of moves){
@@ -92,6 +94,9 @@
 			if(droppingToken.y >= droppingToken.ty){
 				droppingToken.y = droppingToken.ty;
 				game.makeMove({x: droppingToken.tx, y: droppingToken.ty});
+				game.isEnded();
+				game = game;
+
 				
 				if(droppingToken.player == -1 && player1 == "Computer") playerToken = true;
 				if(droppingToken.player == 1 && player2 == "Computer") playerToken = true;
@@ -112,13 +117,13 @@
 			if(droppingToken.size < 0)droppingToken.size = 0;
 		}
 
-		if(playerToken){
+		if(playerToken && !game.ended){
 			console.log("AI move")
 			setTimeout(() => aiMove(), 1);
 		}
 	}
 	
-	function render(){
+	function render(t: number){
 		size = 0;
 		frame = 0.15;
 		if(c.width / (game.width+frame*2) < c.height/ (game.height+1+frame*2)){
@@ -143,7 +148,7 @@
 		ctx.clearRect(offsetX, offsetY+size, size*game.width, size*game.height)
 
 		// dropping token
-		if(droppingToken.x >= 0){
+		if(droppingToken.x >= 0 && !game.ended){
 			ctx.beginPath();
 			ctx.arc(offsetX + Math.round(droppingToken.x*size+size/2), offsetY + Math.round(droppingToken.y*size+size/2) + size, Math.max(0, droppingToken.size) * Math.round(size/2-padding/2), 0, 2 * Math.PI, false);
 			ctx.fillStyle = droppingToken.player == 1 ? '#f00' : "#ff0";
@@ -182,9 +187,18 @@
 		}
 
 		// highlight
-		if(selectedColumn >= 0){
+		if(selectedColumn >= 0 && !game.ended){
 			ctx.fillStyle = "rgba(0,0,0,0.1)";
 			ctx.fillRect(offsetX + selectedColumn*size, offsetY - size*frame + padding/2 + size, size, size * game.height + size*frame*2 - padding);
+		}
+
+		// winning tokens
+		for(let token of game.winningTokens){
+			ctx.beginPath();
+			ctx.arc(offsetX + Math.round(token.x*size+size/2), offsetY + Math.round(token.y*size+size/2) + size, Math.round(size/2-padding/2), 0, 2 * Math.PI, false);
+			ctx.lineWidth = padding/3+1;
+			ctx.strokeStyle = Math.floor(t/500) % 2 == 0 ? '#fff' : "#139";
+			ctx.stroke();
 		}
 	}
 
@@ -194,7 +208,7 @@
 		let dt = t - lastTick;
 		lastTick = t;
 		update(dt);
-		render();
+		render(t);
 		requestAnimationFrame(tick);
 	}
 	
@@ -203,7 +217,7 @@
 		pixelRatio = window.devicePixelRatio;
 		c.width = rect.width * pixelRatio;
 		c.height = rect.height * pixelRatio;
-		render();
+		render(0);
 	}
 
 	async function aiMove(){
@@ -213,14 +227,26 @@
 		setTimeout(() => drop(decision.move.x), 1);
 	}
 </script>
-<div class="container" bind:this={container}>
-	<canvas bind:this={c} on:click={onclick} on:mousemove={onmousemove} on:mouseleave={onmouseleave}/>
+
+<div class="container">
+	<div class="buttons">
+		{#if game.ended}
+			<Button on:click={newGame} variant="raised" style="padding: 24px 50px; font-size: 20px">New game</Button>
+		{/if}
+	</div>
+	<div class="board-container" bind:this={container}>
+		<canvas bind:this={c} on:click={onclick} on:mousemove={onmousemove} on:mouseleave={onmouseleave}/>
+	</div>
 </div>
 
 <svelte:window on:resize|passive={resize}/>
 <style>
 	.container{
+		display: flex; height: 100%; flex-direction: column
+	}
+	.board-container{
 		height: 100%;
+		width: 100%;
 		position: relative;
 	}
 
@@ -229,5 +255,10 @@
 		height: 100%;
 		display: block;
 		position: absolute;
+	}
+
+	.buttons{
+		text-align: center;
+		min-height: 50px;
 	}
 </style>

@@ -4,6 +4,8 @@ export type Move = {x: number, y: number}
 export default class Game{
 	data: Cell[][];
 	turn: 1 | -1;
+	ended = false;
+	winningTokens: Move[] = [];
 	static symbols = {"1": "X", "0": " ", "-1": "O"} as const;
 	constructor(public width, public height, public connect_n){
 		this.turn = 1;
@@ -17,7 +19,6 @@ export default class Game{
 		//povej ali je kdo zmagal
 		const n = this.connect_n; //koliko znakov mora biti v vrsti
 		let value = 0;
-		let win = 0;
 		const directions = [
 			{x: 1, y: 0}, // vodoravno
 			{x: 0, y: 1}, // navpicno
@@ -104,6 +105,40 @@ export default class Game{
 			}
 		}
 		return true;
+	}
+
+	isEnded(){
+		// find winning connection
+		const directions = [
+			{x: 1, y: 0}, // vodoravno
+			{x: 0, y: 1}, // navpicno
+			{x: 1, y: 1}, // posevno dol
+			{x: -1, y: 1}, // posevno gor
+		];
+		for(let dir of directions){
+			for(let j=0-Math.min(dir.y, 0)*(this.connect_n-1); j<this.height - Math.max(dir.y,0)*(this.connect_n-1); j++){
+				for(let i=0-Math.min(dir.x,0)*(this.connect_n-1); i<this.width - Math.max(dir.x,0)*(this.connect_n-1); i++){
+					// prestej koliko znakov je v vrsti
+					let lineMax = 0;
+					let lineMin = 0;
+					let line: Move[] = [];
+					for(let k=0; k<this.connect_n; k++){
+						let cell = this.getCell(i+dir.x*k, j+dir.y*k);
+						line.push({x: i+dir.x*k, y: j+dir.y*k});
+						if(cell == 1)lineMax++;
+						if(cell == -1)lineMin++;
+					}
+
+					if(lineMax == this.connect_n || lineMin == this.connect_n){
+						this.ended = true;
+						this.winningTokens = line;
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	copy(){

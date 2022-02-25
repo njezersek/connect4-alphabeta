@@ -23,6 +23,11 @@
 
 	let game: Game;
 	$: game = new Game(width, height, connect);
+
+	function newGame(){
+		game = new Game(width, height, connect);
+		onstart();
+	}
 </script>
 
 <main>
@@ -67,7 +72,7 @@
 		   
 
 		<div class="board" style="top: {menu ? 100 : 0}%">
-			<Board {game} {player1} {player2} {player1_depth} {player2_depth} bind:onstart></Board>
+			<Board {game} {player1} {player2} {player1_depth} {player2_depth} {newGame} bind:onstart></Board>
 		</div>
 	</div>
 </main>
