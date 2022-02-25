@@ -39,10 +39,8 @@
 	});
 
 	export function onstart(){
-		if(game.isEmpty()){
-			if(player1 == "Computer"){
-				setTimeout(aiMove, 100);
-			}
+		if(player1 == "Computer"){
+			setTimeout(aiMove, 400);
 		}
 	}
 

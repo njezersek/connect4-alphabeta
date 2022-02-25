@@ -11,9 +11,8 @@ export default class AlphaBeta{
 	private decideRecursion(depth: number, alpha: number, beta: number) : Result{
 		let moves = this.game.getMoves();
 		let turn = this.game.turn;
-		let best_move = undefined;
+		let best_move = moves[0];
 
-		let summary = "";
 		for(let move of moves){
 
 			this.game.makeMove(move);
@@ -46,11 +45,9 @@ export default class AlphaBeta{
 				break;
 			}
 
-			if(depth == 7)summary += " " + v;
 			
 		}
 
-		if(depth == 7)console.log(summary);
 		return {move: best_move, value: turn == 1 ? alpha : beta};
 
 	}

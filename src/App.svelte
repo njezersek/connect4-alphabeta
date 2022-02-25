@@ -25,6 +25,7 @@
 	$: game = new Game(width, height, connect);
 
 	function newGame(){
+		menu = false;
 		game = new Game(width, height, connect);
 		onstart();
 	}
@@ -33,7 +34,7 @@
 <main>
 	<header>
 		<h1>Connect <b>{connect}</b></h1>
-		<img src="menu.png" alt="Settings" width="32" height="32" on:click={() => {if(menu){onstart()}; menu = !menu}}>
+		<img src="menu.png" alt="Settings" width="32" height="32" on:click={() => {if(menu && game.isEmpty()){onstart()}; menu = !menu}}>
 	</header>
 	<div class="container">
 		<div class="menu {menu && "show"}">
@@ -64,7 +65,7 @@
 			</div>
 			
 			<div class="play-container">
-				<Button on:click={() => {menu = false; onstart()}} variant="raised" style="padding: 24px 50px; font-size: 20px">Play</Button>
+				<Button on:click={newGame} variant="raised" style="padding: 24px 50px; font-size: 20px">Play</Button>
 			</div>
 
 		</div>
